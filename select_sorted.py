@@ -1,8 +1,10 @@
 from re import match
 from shell_sort import shell_sort
+from beast_cache_wrap import beast_cache
 
 
-def select_sorted(sort_columns=["Name"], limit=10, group_by_name=False, order='asc', filename='dump.csv') -> None:
+@beast_cache
+def select_sorted(sort_columns=["Name"], limit=10, group_by_name=False, order='asc', filename='dump.csv'):
     stock = []
     '''CHECK SORT_COLUMNS'''
     vv = {'high', 'date', 'open', 'low', 'close', 'volume', 'name'}
@@ -71,4 +73,5 @@ def select_sorted(sort_columns=["Name"], limit=10, group_by_name=False, order='a
     with open(filename, 'w') as dump_file:
         dump_file.writelines(list(result_list))
 
+    return result_list
 
