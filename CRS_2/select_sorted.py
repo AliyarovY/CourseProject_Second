@@ -3,8 +3,7 @@ from shell_sort import shell_sort
 from beast_cache_wrap import beast_cache
 
 
-@beast_cache
-def select_sorted(sort_columns=["Name"], limit=10, group_by_name=False, order='asc', filename='dump.csv'):
+def select_sorted(sort_columns=["Name"], limit=10, order='asc', filename='dump.csv', group_by_name=False):
     stock = []
     '''CHECK SORT_COLUMNS'''
     vv = {'high', 'date', 'open', 'low', 'close', 'volume', 'name'}
@@ -56,7 +55,7 @@ def select_sorted(sort_columns=["Name"], limit=10, group_by_name=False, order='a
     def f_f_funcs(value):
         line = value.split(',')
         res = []
-        correct = match(r'\d{4}(-\d{2}){2}(,\d+?\.?\d*?){5},[A-Z]*\n', value).group(0)
+        correct = match(r'\d{4}(-\d{2}){2}.*,[A-Z]*', value).group(0)
         for j in sort_columns:
             i = ind_clmns.index(j)
             if not correct:
@@ -70,9 +69,41 @@ def select_sorted(sort_columns=["Name"], limit=10, group_by_name=False, order='a
     # Main Sort
     result_list = shell_sort(result_list, key=f_f_funcs, reverse=eval(order)) + stock
     '''Write in file'''
-    with open(filename, 'w') as dump_file:
-        dump_file.writelines(list(result_list))
+    if filename:
+        with open(filename, 'w') as dump_file:
+            dump_file.writelines(list(result_list))
 
     return result_list
 
 
+@beast_cache
+def select_sorted_with_cache(sort_columns=["Name"], limit=10, group_by_name=False, order='asc', filename='dump.csv'):
+    return select_sorted(sort_columns=sort_columns, limit=limit, group_by_name=group_by_name, order=order,
+                         filename=filename)
+
+
+def orr(os, tr, ex):
+    tp = type(ex)
+    try:
+        exec(f'global {os}; {os} = {tr} or {ex}')
+    except:
+        if tp == str:
+            exec(f'global {os}; {os} = {repr(f"{ex}")}')
+        else:
+            exec(f'global {os}; {os} = {ex}')
+
+
+def main():
+    print('''
+Сортировать по цене
+открытия (1)
+закрытия (2)
+максимум [3]
+минимум (4)
+объем (5)
+''', end=': ')
+    orr('srt_clm', "'open close high low volume'.split()[int(input()) - 1]", ["Name"])
+    orr('order', "'asc desc'.split()[int(input('Порядок по убыванию [1] / возрастанию (2): ')) - 1]", 'asc')
+    orr('limit' , "int(input('Ограничение выборки [10]: '))", 10)
+    orr('filename', "input('Название файла для сохранения результата [dump.csv]: ')" ,'dump.cvs')
+    select_sorted(srt_clm, limit,  order, filename, group_by_name=False,)
