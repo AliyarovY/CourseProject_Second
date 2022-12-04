@@ -67,7 +67,7 @@ def select_sorted(sort_columns=["Name"], limit=10, order='asc', filename='dump.c
         return res
 
     # Main Sort
-    result_list = shell_sort(result_list, key=f_f_funcs, reverse=eval(order)) + stock
+    result_list = sorted(result_list, key=f_f_funcs, reverse=eval(order)) + stock
     '''Write in file'''
     if filename:
         with open(filename, 'w') as dump_file:
